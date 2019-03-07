@@ -43,3 +43,33 @@ We use Chrome and these extensions to download social media data. The social med
 
 ### Python and spaCy
 
+The simplest way to install Python for data science purposes is to install the Anaconda distribution. The installer is quite large and the process may take a while. 
+
+#### Python
+
+Anaconda includes lots of cutting edge Python packages. Python is a very widely used programming language which we are not going to use. There are lots of tutorials which can help you use python for data science such as [The Python Data Science Handbook](https://jakevdp.github.io/PythonDataScienceHandbook/) and the Real Python [Python Data Science Tutorials](https://realpython.com/tutorials/data-science/).
+
+
+#### spacy
+
+Spacy is a python module used for natural language processing. We are going to use this from R in order to classify the words downloaded from social media.
+
+After installing Anaconda, go to the Anaconda-Navigator. Click on Environments, select All from the drop down box and type in spacy into the search box (as shown below).
+
+![Figure 1: Searching for the spacy package in Anaconda Python](fig1.png)
+
+Click on the checkbox and then apply. Anaconda will find the package you need to install. Click on Apply to install the packages (as shown below).
+
+![Figure 2: Anaconda screen for downloading spacy](fig2.png)
+
+Anaconda will now install spacy. Once this is complete we can download the machine learning model we will use to classify our words in the last part of the workshop. The instructions for each operating system differ.
+
+##### Windows 10
+
+1. Go to the Anaconda install location
+2. Right click on Anaconda Prompt and select 'Run as administrator' (see below screenshot)
+![Figure 3: Running the Anaconda prompt as adminstrator](fig3.jpg)
+3. Type into the prompt the following:
+```bash
+python -m spacy download en
+```
