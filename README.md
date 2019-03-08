@@ -8,15 +8,15 @@ The workshop covers some methods for downloading, analysing and visualising soci
 
 The structure of the workshop is as follows
 
-| **Stage**     | **Title**          | **Detail**                                               |
-|---------------|--------------------|----------------------------------------------------------|
-|               | Introduction       | Overview of the day                                      |
-|               | R intro            | An introduction to R                                     |
-| Collection    | Scraping           | Downloading and filtering html pages                     |
-|               | API and data dumps | Accessing data directly using APIs                       |
-| Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        |
-|               | Text analysis      | Applying numerical analysis to our text                  |
-|               | Natural Language   | Optional section using the cleanNLP package              |
+| **Stage**     | **Title**          | **Detail**                                               | **R package(s)**          |
+|---------------|--------------------|----------------------------------------------------------|---------------------------|
+|               | Introduction       | Overview of the day                                      |                           |
+|               | R intro            | An introduction to R                                     |                           |
+| Collection    | Scraping           | Downloading and filtering html pages                     | rvest                     |
+|               | API and data dumps | Accessing data directly using APIs                       | twitteR, RedditExtractoR  |
+| Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        | tidyverse                 |
+|               | Text analysis      | Applying numerical analysis to our text                  | tidytext                  |
+|               | Natural Language   | Optional section using the cleanNLP package              | cleanNLP                  |
 
 ## Preparation
 

@@ -29,6 +29,20 @@ However, the version in the Ubuntu repository may be slightly older. If you want
 
 RStudio is an integrated development enviroment (IDE) which makes working with R easier. RStudio can be downloaded from [here](https://www.rstudio.com/products/rstudio/download/#download).
 
+#### R packages
+
+We use several packages for R to help with our data collection, analysis and visualisation. Enter the following to download these packages in R:
+
+```R
+install.packages(c('tidyverse', 'tidytext', 'RedditExtractoR', 'rvest', 'httr'))
+```
+
+The installation will take a while. Once complete, you can load in the package into R by typing in library followed by the package name.
+
+```R
+library('tidyverse')
+```
+
 ### Chrome, DataMiner, Recipe Creator and Autoscroll
 
 Chrome can be downloaded [here](https://www.google.com/chrome/). In the Chrome store, you can find the [Data Miner](https://chrome.google.com/webstore/detail/data-scraper-easy-web-scr/nndknepjnldbdbepjfgmncbggmopgden), [Recipe Creator](https://chrome.google.com/webstore/detail/recipe-creator/icadidhenmiokjlmpdgjikdoknhfgkhg) and [autoscroll](https://chrome.google.com/webstore/detail/autoscroll/kgkaecolmndcecnchojbndeanmiokofl/related).
