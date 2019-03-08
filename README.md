@@ -4,11 +4,25 @@
 
 The workshop covers some methods for downloading, analysing and visualising social media data using the R programming language. We use the 'tidyverse' in R and (optionally) the spacy python module for natural language processing.
 
-# Preperation
+## Outline
 
-The preperation for the workshop is detailed [here](preparation/). Please follow the instructions and install the required software before or during the workshop.
+The structure of the workshop is as follows
 
-# Post-workshop
+| **Stage**     | **Title**          | **Detail**                                               |
+|---------------|--------------------|----------------------------------------------------------|
+|               | Introduction       | Overview of the day                                      |
+|               | R intro            | An introduction to R                                     |
+| Collection    | Scraping           | Downloading and filtering html pages                     |
+|               | API and data dumps | Accessing data directly using APIs                       |
+| Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        |
+|               | Text analysis      | Applying numerical analysis to our text                  |
+|               | Natural Language   | Optional section using the cleanNLP package              |
+
+## Preparation
+
+The preparation for the workshop is detailed [here](preparation/). Please follow the instructions and install the required software before or during the workshop.
+
+## Post-workshop
 
 For further information, please see the below links:
 
