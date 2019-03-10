@@ -11,7 +11,7 @@ The structure of the workshop is as follows
 | **Stage**     | **Title**          | **Detail**                                               | **R package(s)**          |
 |---------------|--------------------|----------------------------------------------------------|---------------------------|
 |               | Introduction       | Overview of the day                                      |                           |
-|               | [R intro](/1_r_intro])            | An introduction to R                                     |                           |
+|               | [R intro](https://github.com/jamestripp/qstep-socialmedia/tree/master/1_r_intro)            | An introduction to R                                     |                           |
 | Collection    | Scraping           | Downloading and filtering html pages                     | rvest                     |
 |               | API and data dumps | Accessing data directly using APIs                       | twitteR, RedditExtractoR  |
 | Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        | tidyverse                 |
