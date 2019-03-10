@@ -1,0 +1,365 @@
+---
+title: "1 - R Intro"
+output:
+  html_document:
+    df_print: paged
+---
+
+# Basics
+
+R is a statistical functional programming language. That can sound intimidating at first, but learning the basics of R is very straight forward. In this Notebook we will go through the basics.
+
+## Numbers, characters and tables
+
+In R, we use text and numbers. Characters need to be enclosed in '' whereas numbers are just typed in.
+
+```{r numbers_and_strings}
+'this is a string'
+
+44
+
+382
+```
+
+We can also add comments to code. These are lines which the R program does not evaluate.
+
+```{r comments}
+# This is a comment
+
+# Here is another one. I like concise comments.
+
+# Be nice to your future self and others: add comments to your code.
+```
+
+## Number Operations
+
+As you may expect, we can do the usual mathematical operations on numbers.
+
+```{r number_operations}
+45/7
+
+7 * 38404
+
+3 + 2
+```
+
+More complex operations can be done using functions
+
+```{r string_operations}
+# Exponential transformation
+exp(38)
+
+# Log transformation
+log(27)
+```
+
+## Functions
+
+The exponential and log transformations above are examples of functions. Remember that R is a functional language. Input is passed to a function and then the operations defined by the function are applied to the input. To make this more concrete, consider log(27). The input of 27 is passed to the log function. The function tells R how to calculate the log of 27. Then the result, 3.295837, is displayed.  
+
+Part of the power of R is the ability to easily create our own functions. Let us create an example function which will multiply an input by 10 and add 2.
+
+```{r my_own_function}
+ma_function <- function(x) {
+  (x * 10) + 2
+}
+```
+
+We can then pass our own value to this function.
+
+```{r to_my_own_function}
+ma_function(22)
+
+ma_function(362)
+```
+
+We are not going to define our own functions today. Instead, we are going to use functions which other people have already defined for us - they have done the hard work!
+
+It is often quite useful to look at the help documentation of a function. The documentation allows us to figure out what inputs the function expects and what the functions does. To access the help documentation, just add a ? in front of the function name. For example,
+
+```{r function_help}
+?log
+```
+
+The help documentation for the log function should now be shown in the help tab.
+
+## Variables
+
+We often need R to keep values in memory. These can range from API keys to tables. We use the assignment operator '<-' to save a variable in the current enviroment. The variable name can be any combination of letters. For example
+
+```{r variables}
+this_one <- 'a nice little string for us to use'
+another <- 4763
+and_a_final_one <- 12
+```
+
+you should see these variables in the Enviroment tab. Variables can be accessed by passing R the variable name,
+
+```{r show_variable}
+this_one
+```
+
+and passed to function in the same way.
+
+```{r variable_to_function}
+log(another)
+exp(and_a_final_one)
+```
+
+If we need to create a variable with multiple strings or numbers then we use the c() function.
+
+```{r c}
+x <- c(this_one, 'some other series of character')
+y <- c(another, and_a_final_one)
+```
+
+However, we cannot combine characters and numbers using c() without R trying to turn everything into a character.
+
+```{r oops}
+b <- c(this_one, another)
+```
+
+## Tables
+
+One of the main ways to organise data into tables in R is the data frame. A data frame is much like an excel table with columns and rows. The columns have names. To create a data frame we can use the function data.frame.
+
+```{r create_data_frame}
+names <- c('james', 'joan')
+ages <- c(44, 54)
+data.frame(names, ages, stringsAsFactors = FALSE)
+```
+
+Notice that we can have different data types in each column. The names column contains characters whereas the ages column contains numbers. As before, we can save the dataframe as a variable.
+
+```{r dataframe_variable}
+df <- data.frame(names, ages, stringsAsFactors = FALSE)
+```
+
+and then pick out particular columns using the $ operator
+
+```{r dollar}
+df$names
+```
+
+and rows like so
+
+```{r data_frame_row}
+df[2,]
+```
+
+## Structure
+
+If we have a large data frame (or tibble, see below) then we can use the structure function (str) or we can get the column names with the names function,
+
+```{r structure}
+str(df)
+names(df)
+```
+
+or clicking on the variable in the environment tab.
+
+### Your turn
+
+If you want to check your understanding, then please try the below questions. Type in the code yourself.
+
+1. Create a string variable called bob. Have R print out the variable bob.
+
+```{r diy_bob}
+
+```
+
+2. Bring up the data.frame help documentation. Can you find out what the stringsAsFactors argument does?
+
+```{r diy_dataframe}
+
+```
+
+3. Create a data frame with columns containing your name, age and studyyear.
+
+```{r diy_mydataframe}
+
+```
+
+# Beyond the basics
+
+R has lots of packages available. A package is a collection of functions which you can download and use. These packages are quite awesome because they expand what you can do in R.
+
+To download packages we use the install.packages function. Please run the below code to install the tidyverse and ggplot2 packages.
+
+```{r eval=FALSE}
+install.packages(c('tidyverse', 'ggplot2'))
+```
+
+The above may take a while to load. The package tidyverse will download lots of quite useful packages (see https://www.tidyverse.org) whereas ggplot2 is used for creating visualisations (see https://www.r-graph-gallery.com/portfolio/ggplot2-package/). The package files are saved to a directory on your computer.
+
+In order to use these cool functions, we need to tell R to run the files and save the functions into our current session.
+
+```{r load_packages}
+library(ggplot2)
+library(tidyverse)
+```
+
+## ggplot2
+
+Today, we will create visualisations with ggplot2. I find ggplot2 to be useful for creating different visualisations with a single data set easily.
+
+For this example, we will use a well known data set built into R.
+
+```{r dataset}
+df <- mtcars
+str(mtcars)
+?mtcars
+```
+
+The mtcars is a special dataset is an often used to show off R.
+
+In ggplot2 we create plots by defining our aesthetics (e.g., which variable is on the x and which on the y axis) and then deciding the type of plot (e.g., line plot or bar plot). So we can create a line plot of miles by weight.
+
+```{r ggplot_start}
+ggplot(data = df, aes(x = mpg, y = wt)) +
+  geom_line()
+```
+
+on the other hand, that might look better as a point plot.
+
+```{r ggplot_point}
+ggplot(data = df, aes(x = mpg, y = wt)) +
+  geom_point()
+```
+
+So, lighter vehicles have a higher mpg. Do the number of gears matter?
+
+```{r ggplot_color}
+ggplot(data = df, aes(x = mpg, y = wt, color = gear)) +
+  geom_point()
+```
+
+It seems like it might. But perhaps engine is an important factor too?
+
+```{r ggplot_facet}
+ggplot(data = df, aes(x = mpg, y = wt, color = gear)) +
+  geom_point() +
+  facet_grid(.~vs)
+```
+
+As you can see, ggplot2 allows us to quickly build a simple visualisation and tweak what is shown. For more information, do see the help documentation for ggplot2
+
+```{r ggplot_help}
+?ggplot2
+```
+
+Why should we care about ggplot2 for analysing social media data? Well, we need to be able to explore data once we have downloaded it. Social media is a source of data which we will put into a table like the mtcatrs data.
+
+## tibbles and the tidyverse
+
+The tidyverse is a collection of package which can be used to work with data. I find the tidyverse makes working with data easier and gives use code which is far easier to read. We should load the tidyverse first.
+
+```{r load_tidyverse}
+library(tidyverse)
+```
+
+The inbuilt data frame is a little ugly.
+
+```{r ugly_data_frame}
+df
+```
+
+A prettier version of the data frame is the tibble and the various functions in the tidyverse expect our data to be in tibble format.
+
+```{r pretty_tibble}
+as_tibble(df)
+```
+
+## Playing around with tibbles
+
+With a tibble, we can quite easily filter the data.
+
+```{r tibble_filter}
+tb <- as_tibble(df)
+filter(tb, vs == 1)
+```
+
+We can also group a table by a variable.
+
+```{r tibble_groupby}
+group_by(tb, vs)
+```
+
+## Piping, for more fun!
+
+We can also combine different tibble operations using the %>% operator. The below filters the data to show only cars with 4 gears and groups the output by the engine (vs).
+
+```{r pipes}
+tb %>%
+  filter(gear == 4) %>%
+  group_by(vs)
+```
+
+We can build some quite nice summaries using group by. The filter and group_by functions are from the dplyr package. We can run group_by and then calculate a summary by group (for reference, see https://r4ds.had.co.nz/transform.html#grouped-summaries-with-summarise and  https://www.rstudio.com/resources/cheatsheets/#dplyr).
+
+```{r summary_by_group}
+tb %>%
+  group_by(gear) %>%
+  summarise(
+    count = n(),
+    mpg_mean = mean(mpg)
+  )
+```
+
+Finally, we can take this output and then create plots with the resulting tables.
+
+```{r summary_to_plot}
+tb %>%
+  group_by(gear) %>%
+  summarise(
+    count = n(),
+    mpg_mean = mean(mpg)
+  ) %>%
+  ggplot(aes(x = gear, y = mpg_mean)) +
+  geom_line() +
+  geom_point()
+```
+
+### Your turn
+
+As before, here are a few tasks you can use to check your understanding of the above.
+
+1. Convert the mtcars data frame to a tibble. Filter the data to show only automatic cars. **Note** you may need to check the mtcars help text (?mtcars) to find which column contains the transmission data.
+
+```{r diy_tibble}
+
+```
+
+2. Create a scatterplot which plots the weight by gross horsepower. Can you see a relationship?
+
+```{r diy_ggplot}
+
+```
+
+3. Combine the answers to 1 and 2. Plot the weight by gross horsepower of only the automatic transmission vehicles.
+
+```{r diy_tribble_and_ggplot}
+
+```
+
+# Summary
+
+We have covered a lot. 
+
+* Variables
+* Function
+* Tables
+* Packages
+* Plots
+* A little of the 'tidyverse'
+
+R has a lot of functionality. You are not required to learn all of this to take part in this workshop. Though it is a useful skill to have one data science programming language (R, Python, Matlab or Julia) in your skillset.
+
+If you do want to go further, then you should play around with some data and read the documentation from the RStudio folks. There are links to some of these page on the main page of the gihub repository and below:
+
+* [R for data science](https://r4ds.had.co.nz) - An excellent book introducing the tidyverse approach to data science. 
+* [Tidyverse](https://www.tidyverse.org) - Web page detailing the tidyverse collection of package and how to use them.
+* [RStudio Cheat sheets](https://www.rstudio.com/resources/cheatsheets/) - A whole collection of cheatsheets. The ggplot and dplyr sheets are perhaps most useful given the above.
+* [RStudio essentials](https://resources.rstudio.com) - Videos available on the RStudio page.
+* [Rstudio Essentials of Data Science](https://resources.rstudio.com/the-essentials-of-data-science) - Nice collection of videos on various data science topics in R.
+* [Datacamp tidyverse for beginners](https://www.datacamp.com/community/blog/tidyverse-cheat-sheet-beginners) - A somewhat simpler cheat sheet which is great for those coming to the tidyverse for the first time.
