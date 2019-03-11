@@ -1,0 +1,356 @@
+---
+title: "2 Scraping"
+output:
+  html_notebook: default
+---
+
+# Overview
+
+Here we examine how to scrape social media pages using R. The purpose of doing this is to create a table of data which we can then summarise, analyse and visualise.
+
+The approach we take is very simple:
+
+1. Download the html page
+2. Filter the page and save the result as an R variable
+
+The disadvantage of this approach is many website load additional data into the page once it is loaded in the browser. For example, Twitter will display the first 20 or so tweets and then more will be downloaded once one scrolls down. R is able to control a headless browser (see [rselenium](https://github.com/ropensci/RSelenium)) and to evaluate javascript (see [phantomjs](https://github.com/rstudio/webdriver)), but this quickly gets rather complicated and is beyond the scope of this workshop.
+
+# Twitter
+## rvest
+
+The [rvest](https://github.com/tidyverse/rvest) package allows us to download and filter an html file.
+
+The first step is to download and load the rvest package
+
+```{r install_and_run_rvest}
+#install.packages('rvest')
+library(rvest)
+library(tidyverse)
+library(magrittr)
+library(ggplot2)
+```
+
+Next we can choose a page to download. For this demonstration, we can use my neglected Twitter feed.
+
+```{r grab_url}
+url <- 'https://twitter.com/jamestripp_'
+twitter <-read_html(url)
+```
+
+If we look at the twitter variable, we can see there is the head and body segments of the page.
+
+```{r twitter_look}
+twitter
+```
+
+Following the documentation, we can pull out different html elements of the page using the html_nodes function. For instance, we can look at the title of the page.
+
+```{r twitter_title}
+twitter %>%
+  html_nodes('title')
+```
+
+Furthermore, we just pick out the text.
+
+```{r twitter_title_text}
+twitter %>%
+  html_nodes('title') %>%
+  html_text()
+```
+
+## Multiple elements
+
+We can pull out multiple elements too. For instance, looking at the HTML in a browser tells us that all the tweet text segments have the class 'tweet-text'. Great! We can pull this text out of the page.
+
+```{r twitter_text}
+twitter %>%
+  html_nodes('.tweet-text')
+```
+
+The html_text function will convert this into a series of character strings.
+
+```{r twitter_text_text}
+twitter %>%
+  html_nodes('.tweet-text') %>%
+  html_text()
+```
+
+For individual elements on complex pages, it is often easier to get the CSS selector for the element. The twitter page is a good example of where we may need this. If I go to the page in chrome and select the selector for the number of likes, then I get:
+
+'#stream-item-tweet-1093336099471192064 > div.tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.dismissible-content.original-tweet.js-original-tweet.has-cards.cards-forward > div.content > div.stream-item-footer > div.ProfileTweet-actionList.js-actions > div.ProfileTweet-action.ProfileTweet-action--favorite.js-toggleState > button.ProfileTweet-actionButton.js-actionButton.js-actionFavorite > span > span'
+
+Looking at this selector, we can see that there is a tweet specific part '#stream-item-tweet-1093336099471192064'. Removing this part and putting the result into html_nodes will let us select the number of likes. 
+
+```{r twitter_likes}
+twitter %>%
+  html_nodes('div.tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.dismissible-content.original-tweet.js-original-tweet.has-cards.cards-forward > div.content > div.stream-item-footer > div.ProfileTweet-actionList.js-actions > div.ProfileTweet-action.ProfileTweet-action--favorite.js-toggleState > button.ProfileTweet-actionButton.js-actionButton.js-actionFavorite > span > span') %>%
+  html_text()
+```
+
+We can take the same approach to the number of retweets.
+
+```{r twitter_retweets}
+twitter %>%
+  html_nodes('div.tweet.js-stream-tweet.js-actionable-tweet.js-profile-popup-actionable.dismissible-content.original-tweet.js-original-tweet.tweet-has-context.has-cards.has-content > div.content > div.stream-item-footer > div.ProfileTweet-actionList.js-actions > div.ProfileTweet-action.ProfileTweet-action--retweet.js-toggleState.js-toggleRt > button.ProfileTweet-actionButton.js-actionButton.js-actionRetweet > span > span') %>%
+  html_text()
+```
+
+Ah, there is a problem. Not all of our tweets have likes or retweets. Unfortunatly, there is no easy to iterate over each tweet and see if there is a number of likes and retweets. So we will have to leave that for the moment.
+
+There are dates for each tweet. So we can use that to help build up our table.
+
+```{r twitter_dates}
+twitter %>%
+  html_nodes('._timestamp') %>%
+  html_text()
+```
+
+We can combine the page title, date and tweet text into a single tibble. Useful for analysis.
+
+```{r eval=FALSE}
+library(tibble)
+
+title <- twitter %>%
+  html_nodes('title') %>%
+  html_text()
+
+text <- twitter %>%
+  html_nodes('.tweet-text') %>%
+  html_text()
+
+timestamps <- twitter %>%
+  html_nodes('._timestamp') %>%
+  html_text()
+
+tibble(
+  title,
+  text,
+  timestamps
+)
+```
+
+Oh no! It looks like our timestamp and text vectors have different lengths. We could investigate why, but instead we will drop the timestamps.
+
+```{r twitter_combine_mk2}
+library(tibble)
+
+title <- twitter %>%
+  html_nodes('title') %>%
+  html_text()
+
+text <- twitter %>%
+  html_nodes('.tweet-text') %>%
+  html_text()
+
+timestamps <- twitter %>%
+  html_nodes('._timestamp') %>%
+  html_text()
+
+tb_twitter <- tibble(
+  title,
+  text
+)
+tb_twitter
+```
+
+### Your turn
+
+To check your understanding, consider the following:
+
+1. Can you get R to filter for another part of the page? For example, how would you get all the a elements in the page?
+
+```{r diy_a_element}
+
+```
+
+2. What are the advantages and difficulties with this approach?
+
+## Multiple pages
+
+We have a process for downloading some of the tweets from a single page. It is not perfect, but it will serve our purposes for the moment. To make our lives easier, we can combine these steps into a function. Th e Twitter username goes in and the data comes out.
+
+The only new thing we need to cover first is creating a string using paste.
+
+```{r pasting_for_the_win}
+account <- 'jamestripp_'
+base_url <- 'https://twitter.com/'
+url <- paste(base_url, account, sep = '')
+url
+```
+
+```{r twitter_function}
+get_tweets <- function(account) {
+  base_url <- 'https://twitter.com/'
+  url <- paste(base_url, account, sep = '')
+  
+  twitter <-read_html(url)
+  
+  title <- twitter %>%
+    html_nodes('title') %>%
+    html_text()
+
+  text <- twitter %>%
+    html_nodes('.tweet-text') %>%
+    html_text()
+  
+  tibble(
+    title,
+    text
+  )
+}
+```
+
+Let us give it a go.
+
+```{r function_collection}
+get_tweets('jamestripp_')
+```
+
+Looking good. We should try another account.
+
+```{r cimethods}
+get_tweets('cimethods')
+```
+
+Great! We have a method for collecting some tweets. We can combine outputs using the bind_rows function.
+
+```{r together}
+library(tidyverse)
+x <- bind_rows(
+  get_tweets('jamestripp_'),
+  get_tweets('cimethods')
+)
+```
+
+## Think bigger
+
+Getting data from two accounts is cute. But what about 10 accounts. Thankfully, we can use for loops to repeat our function for a series of character.
+
+For loops work by repeating code between {} with a small difference each time. For instance,
+
+```{r for_loop_example}
+accounts <- c('jamestripp_', 'cimethods', 'warwickuni', 'warwicksu', 'wmgwarwick', 'warwicknewsroom', 'warwickcareers', 'warwickbooks', 'outreachwarwick', 'rolfatwarwick')
+for (account in accounts) {
+  print(account)
+}
+```
+
+We can create an empty tibble and then go through each account and add our new data.
+
+```{r multi_account_scrape}
+our_data <- tibble(
+  title = character(),
+  text = character()
+)
+
+for (account in accounts) {
+  our_data <- bind_rows(
+    our_data,
+    get_tweets(account)
+  )
+}
+```
+
+We now have about 213 tweets from 10 different account. Excellent.
+
+## Quick summaries
+
+Can we check how many tweets we have from each account? Sure!
+
+```{r tweet_counts}
+our_data %>%
+  group_by(title) %>%
+  summarise(
+    count = n()
+  )
+```
+
+What about word counts? It might be that tweets from my feed are generally much more verbose.
+
+```{r word_count}
+our_data %>%
+  mutate(
+    wordcount = str_count(text, pattern = '') + 1
+    )
+```
+
+We can put both of the above into plots.
+
+```{r plot_counts}
+our_data %>%
+  group_by(title) %>%
+  summarise(
+    count = n()
+  ) %>%
+  ggplot(aes(y = count, x = title)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip()
+```
+
+Instead of a histogram, we can more clearly plot wordcounts using the range.
+
+```{r word_count_extra}
+our_data %>%
+  mutate(
+    wordcount = str_count(text, pattern = '') + 1
+    ) %>%
+  group_by(title) %>%
+  summarise(
+    median_wc = median(wordcount),
+    max_wc = max(wordcount),
+    min_wc = min(wordcount)
+  )
+```
+
+```{r word_count_extra_plot}
+our_data %>%
+  mutate(
+    wordcount = str_count(text, pattern = '') + 1
+    ) %>%
+  group_by(title) %>%
+  summarise(
+    median_wc = median(wordcount),
+    max_wc = max(wordcount),
+    min_wc = min(wordcount)
+  ) %>%
+  ggplot(aes(x = title, y = median_wc)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = min_wc, ymax = max_wc)) +
+  coord_flip() +
+  theme_minimal()
+```
+
+Very pretty! What do you think it shows?
+
+## Saving output
+
+We can save variables using R functions. I prefer to save them as RData files (if I will load the data back into R at a later date) or CSV files (perfect for importing into another program or looking at with excel). To save our output file as an RData file.
+
+```{r eval=FALSE}
+save(our_data, file = 'our_data.RData')
+```
+
+or as a csv file
+
+```{r eval=FALSE}
+write_csv(our_data, file = 'our_data.csv')
+```
+
+### Your turn
+
+You have a function called get_tweets which will download the tweets from someone's feed. Now is your chance to use this function.
+
+1. Decide on an interesting topic and choose a few relevent twitter accounts.
+
+2. Download the first 20 or so tweets (as shown in the code above). You can put the code in the below box.
+
+```{r diy_twitter_download}
+
+```
+
+3. Can you create a visualisation of the data? Use the code above if you would like. The goal is for you to have some experience of basic visualisations.
+
+```{r diy_twitter_vis}
+
+```
