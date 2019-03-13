@@ -1,0 +1,358 @@
+---
+title: "5 Text Analysis"
+output: html_notebook
+author: Dr James Tripp, CIM, University of Warwick
+---
+
+# Overview
+
+Social media is highly text driven. Some interesting text based analysis is detailed in the online book [Text Mining with R](https://www.tidytextmining.com/). The book uses a package called tidytext and is broadly consistent with work we have already done.
+
+Here we look at how one can apply some of the methods in the book to our Reddit dataset. We look at:
+
+* Sentiment analysis
+* Word frequencies
+* N-Grams
+* Topic modelling
+
+Please ask yourself what particular analysis can and cannot tell you. In my experience, these types of analysis are often best complimented with lookig at and understanding interesting data points. Less automated methods including discourse analysis are also important in decoding the nature of the narrative in the data set.
+
+We are going to use quite a few libraries. We should load these in here rather than later - the code will be cleaner if we do.
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(tidytext)
+library(dplyr)
+library(stringr)
+library(RedditExtractoR)
+library(tidyr)
+library(igraph)
+library(ggraph)
+library(wordcloud)
+library(reshape2)
+library(tm)
+library(topicmodels)
+```
+
+# Data collection
+
+We are using a Reddit data set again.
+
+```{r results='hide', message=FALSE}
+query <- 'brexit'
+subreddits <- c('news', 'unitedkingdom', 'ukpolitics')
+df <- tibble()
+for (subreddit in subreddits) {
+  df <- bind_rows(
+    df,
+    get_reddit(search_terms = query, subreddit = subreddit)
+  )
+}
+```
+
+We should check how much data we collected.
+
+```{r}
+df %>%
+  group_by(subreddit) %>%
+  summarise(
+    count = n()
+  )
+```
+
+# Sentiment analysis
+
+The approach to sentiment analysis here is very simple. We split the text up by word.
+
+```{r}
+df_by_word <- df %>%
+  unnest_tokens(word, post_text)
+
+df_by_word
+```
+
+Then we look up each word in a sentiment word dictionary. We use the 'afinn' dictionary where words are given a numerical score. Negative values are associated with a negative sentiment and positive values a positive sentiment.
+
+```{r}
+df_sentiment <- df_by_word %>%
+  inner_join(get_sentiments("afinn"))
+
+df_sentiment
+```
+
+The inner join function outputs only the rows where the word matches a word in the 'afinn' sentiment dictionary. Non-matching words are not in the output. We could plot the data to make more sense of it.
+
+```{r fig.heigh=6, fig.width=8}
+df_sentiment %>%
+  mutate(short_title = substr(title, 1, 30)) %>%
+  ggplot(aes(x = short_title, y = score)) +
+  geom_boxplot() +
+  facet_wrap(.~subreddit, , scales = 'free') +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+We can take this sentiment word table and look at the max, min and mean sentiment by subreddit.
+
+```{r}
+df_sentiment_summary <- df_sentiment %>%
+  group_by(subreddit) %>%
+  summarise(
+    mean_sentiment = mean(score),
+    min_sentiment = min(score),
+    max_sentiment = max(score),
+    count = n()
+  )
+
+df_sentiment_summary
+```
+
+## Less numerical
+
+We could calculate sentiment using a different dictionary. In the 'bing' dictionary the word classification is binary - either positive or negative.
+
+```{r}
+df_sentiment_count <- df_by_word %>%
+  inner_join(get_sentiments('bing')) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+df_sentiment_count %>%
+  group_by(sentiment) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sentiment, scales = "free_y") +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+
+If we suspect differences based on subreddit then we should split the above by subreddit.
+
+```{r}
+df_sentiment_count <- df_by_word %>%
+  group_by(subreddit) %>%
+  inner_join(get_sentiments('bing')) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  ungroup()
+
+df_sentiment_count %>%
+  group_by(sentiment, subreddit) %>%
+  top_n(10) %>%
+  ungroup() %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n, fill = sentiment)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(subreddit~sentiment, scales = 'free') +
+  labs(y = "Contribution to sentiment",
+       x = NULL) +
+  coord_flip()
+```
+
+These are frequencies. Following the text, we can look at this using a wordcloud format.
+
+```{r}
+df_by_word %>%
+  anti_join(stop_words) %>%
+  count(word) %>%
+  with(wordcloud(word, n, max.words = 100))
+```
+
+We could even split by negative and positive sentiment.
+
+```{r}
+df_by_word %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(word, sentiment, sort = TRUE) %>%
+  acast(word ~ sentiment, value.var = "n", fill = 0) %>%
+  comparison.cloud(colors = c("gray20", "gray80"),
+                   max.words = 100)
+```
+
+# Word document frequency
+
+We can look at the data using a traditional document frequency analysis. Each thread can be treated as a document.
+
+```{r}
+words <- df %>%
+  unnest_tokens(word, title) %>%
+  count(subreddit, word, sort = TRUE)
+words
+```
+
+It is perhaps unsurprising that the most frequent word is brexit. The term Brexit was our query term. Another issue is the number of comments per thread may be unequal.
+
+We can use the function bind_tf_idf to calculate the term frequency and inverse document frequency. These measures control for the number of items in a document and the most used words. The intuition is that we want to see the words which are most frequent in the document but are not the most frequent in our entire data set - to see which words are interesting in our data set (see [this part of the data mining in R book](https://www.tidytextmining.com/tfidf.html#the-bind_tf_idf-function) for details).
+
+We are going to look at the words with the highest inverse document frequency.
+
+```{r}
+total_words <- words %>% 
+  group_by(subreddit) %>% 
+  summarize(total = sum(n))
+
+words <- left_join(words, total_words)
+
+words <- words %>%
+  bind_tf_idf(word, subreddit, n) %>%
+  select(-total) %>%
+  arrange(desc(tf_idf))
+words
+```
+
+Well, that's quite interesting. What do you all think?
+
+We can also plot this, for extra impact, and split up the subreddits.
+
+```{r fig.height=6}
+words %>%
+  arrange(desc(tf_idf)) %>%
+  mutate(word = factor(word, levels = rev(unique(word)))) %>% 
+  group_by(subreddit) %>% 
+  top_n(15) %>% 
+  ungroup %>%
+  ggplot(aes(word, tf_idf, fill = subreddit)) +
+  geom_col(show.legend = FALSE) +
+  labs(x = NULL, y = "tf-idf") +
+  facet_wrap(~subreddit, ncol = 2, scales = "free") +
+  coord_flip()
+```
+
+We have identified the words which appear to characterise the different subreddits. What do you think this means?
+
+# N-grams
+
+One method of looking at text is to try and identify commonly used multiword phrases. For instance, we might expect the phrase 'brexit shambles' to be in our data set. Fortunatly, we an try to identify these phrases by splitting up the words into bigrams.
+
+```{r}
+bigrams <- df %>%
+  unnest_tokens(bigram, comment, token = "ngrams", n = 2)
+
+bigrams %>%
+  count(bigram, sort = TRUE)
+```
+
+However, we should remove common words as can make it tricky to identify topic specific terms.
+
+```{r}
+bigrams_separated <- bigrams %>%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_filtered <- bigrams_separated %>%
+  filter(!word1 %in% stop_words$word) %>%
+  filter(!word2 %in% stop_words$word)
+
+bigram_counts <- bigrams_filtered %>% 
+  count(word1, word2, sort = TRUE)
+
+bigram_counts
+```
+
+## Trigrams
+
+Trigrams are also an option.
+
+```{r}
+df %>%
+  unnest_tokens(trigram, comment, token = "ngrams", n = 3) %>%
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
+  filter(!word1 %in% stop_words$word,
+         !word2 %in% stop_words$word,
+         !word3 %in% stop_words$word) %>%
+  count(word1, word2, word3, sort = TRUE)
+```
+
+## Bigram visualisations
+
+We can also look at the relationship between words and the corresponding bigram. We can treat the bigram list as a document and calculate the inverse document frequency to identify the bigrams of perhaps most interest within a given subreddit (where the subreddit is treated as a document).
+
+```{r}
+bigrams_united <- bigrams_filtered %>%
+  unite(bigram, word1, word2, sep = " ")
+
+bigram_tf_idf <- bigrams_united %>%
+  count(subreddit, bigram) %>%
+  bind_tf_idf(bigram, subreddit, n) %>%
+  arrange(desc(tf_idf))
+
+bigram_tf_idf
+```
+
+Which can then be visualised as a network.
+
+```{r fig.height=10, fig.width=10}
+bigram_graph <- bigram_counts %>%
+  filter(n > 20) %>%
+  graph_from_data_frame()
+
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link() +
+  geom_node_point() +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1) +
+  theme_void()
+```
+
+# Topic modelling
+
+```{r}
+word_counts <- df[,c('subreddit', 'comment')] %>%
+  group_by(subreddit) %>%
+  unnest_tokens(word, comment) %>%
+  anti_join(stop_words) %>%
+  count(subreddit, word, sort = TRUE) %>%
+  ungroup()
+
+word_counts
+```
+
+```{r}
+subreddit_dtm <- word_counts %>%
+  cast_dtm(subreddit, word, n)
+
+subreddit_dtm
+```
+
+```{r}
+subreddit_lda <- LDA(subreddit_dtm, k = 4)
+subreddit_lda
+```
+
+We are assuming there are only two topics (our K is set to 2). You may want to change the value of K and check your output.
+
+Each word is given a beta value. This beta valua is per-topic-per-word probablities. Essentially giving the the probability of a word being in a given topic. To view the words which have the highest probably of being in a topic, we do the following.
+
+```{r}
+subreddit_topics <- tidy(subreddit_lda, matrix = 'beta')
+subreddit_top_terms <- subreddit_topics %>%
+  group_by(topic) %>%
+  top_n(20, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+subreddit_top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+```
+
+It is down to us to try to understand the output. Does there appear to be two clear topics there?
+
+Another way to look at the model is to examine the probability of a document (the subreddit) containing a topic (the gamma probability).
+
+```{r}
+subreddits_gamma <- tidy(subreddit_lda, matrix = "gamma")
+subreddits_gamma
+```
+
+```{r}
+subreddits_gamma %>%
+  mutate(title = reorder(document, gamma * topic)) %>%
+  ggplot(aes(factor(topic), gamma)) +
+  geom_boxplot() +
+  facet_wrap(~ title)
+```

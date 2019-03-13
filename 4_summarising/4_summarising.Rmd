@@ -1,0 +1,114 @@
+---
+title: "4 Summarising"
+output: html_notebook
+author: Dr James Tripp, CIM, University of Warwick
+---
+
+# Overview
+
+The aim of this section is to briefly show you:
+
+* How to collect lots of data from Reddit.
+* Some of the ways we can summarise this data using the tidyverse.
+
+First, we will load all the usual libraries for the tidyverse functions.
+
+```{r}
+rm(list=ls())
+library(tidyverse)
+library(tidytext)
+library(dplyr)
+library(tidyr)
+```
+
+# Reddit Data
+
+The package RedditExtractoR allows us to collect a lot of data from Reddit easily. The code uses the json files we looked at previously. If we had more time then we should probably write our own; that falls outside the scope of this Masterclass.
+
+Given our current time period, brexit seems a good choice of topic. We are going to look within the general news, united kingdom and ukpolitics subreddits. The function get_reddit will download a few pages of search results. **Note:** The function returns only a maximum of 500 comments per item; this is a limitation of the package.
+
+```{r}
+library(RedditExtractoR)
+query <- 'brexit'
+subreddits <- c('news', 'unitedkingdom', 'ukpolitics')
+df <- tibble()
+for (subreddit in subreddits) {
+  df <- bind_rows(
+    df,
+    get_reddit(search_terms = query, subreddit = subreddit)
+  )
+}
+```
+
+We might wonder what people are talking about in the different subreddits. A nice feature of reddit is that each subreddit has a unique culture. What do you all think might be their take on brexit?
+
+# Simple summary
+
+The structure of commands within the tidyverse is to have a table of raw data and then specify a series of operations. Each operation is seperated by the piping operator %>%. Each operation is a verb.
+
+Consider a simple frequency summary. We want R to split our table by subreddit and then count the number of comments in each. We need to know the column names of the table
+
+```{r}
+names(df)
+```
+
+and then can tell R to group the data by subreddit and create a summary containing the count of items in the group.
+
+```{r}
+df %>%
+group_by(subreddit) %>%
+  summarise(
+    count = n()
+  )
+```
+
+We can go a bit further and split the counts by title too.
+
+```{r}
+df %>%
+group_by(subreddit, title) %>%
+  summarise(
+    count = n()
+  )
+```
+
+The [dplyr](https://dplyr.tidyverse.org) package contains many of the verbs we are interested in. We have(taken from the above website),
+
+* mutate() adds new variables that are functions of existing variables
+* select() picks variables based on their names.
+* filter() picks cases based on their values.
+* summarise() reduces multiple values down to a single summary.
+* arrange() changes the ordering of the rows.
+
+And group_by allows you to perform operations by group. There is also a rather useful [top_n](https://dplyr.tidyverse.org/reference/top_n.html) function too.
+
+```{r subset_tibble}
+x <- unique(df[, c('subreddit', 'title', 'post_score')])
+x %>%
+  group_by(subreddit) %>%
+  arrange(desc(post_score)) %>%
+  top_n(3)
+```
+
+## Your turn
+
+Using the [dplyr cheatsheet](https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf) can you produce the following summaries?
+
+1. The number of comments by date.
+
+```{r}
+
+```
+
+2. The average comment rating by subreddit.
+
+```{r}
+
+```
+
+3. The top rated comment by thread.
+
+```{r}
+
+```
+

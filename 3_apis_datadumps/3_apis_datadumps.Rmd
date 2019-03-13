@@ -1,0 +1,164 @@
+---
+title: "3 APIs and data dumps"
+output: html_notebook
+---
+
+# Overview
+
+Structured, table like data is available for most social media platforms. We can access this data by sending requests to the platform website specifying the data we want. A major advantage of this approach is that we can get a lot of easy to use data. However, we are also dependent on the platform and the limits they impose on data collection.
+
+# Direct get requests
+
+R has a library called [httr](https://github.com/r-lib/httr) which allows us to send a request to a web location. If we ask for a web page then we will get that page, which appears to us like garbage text.
+
+```{r}
+library(httr)
+GET('www.google.com')
+```
+
+But httr gets much more interesting once we realise that many APIs are just get requests with options to a particular webpage. 
+
+# 4Chan
+
+Let us consider the highly controversial message board 4chan. If we look at the documentation, 4chan has [a relatively simple API](https://github.com/4chan/4chan-API).
+
+**NOTE:** 4chan has offensive content. Like, really, really, offensive content. Tread extremely carefully! Alternatively, use the Reddit example below instead.
+
+Taken from the 4chan API page
+
+'JSON representations of threads and indexes are exposed at the following URLs:
+
+http(s)://a.4cdn.org/board/thread/threadnumber.json
+http(s)://a.4cdn.org/board/pagenumber.json (1 is main index)'
+
+Roughly translated, if we direct a get request to https://a.4cdn.org/g/1.json then we will recieve a JSON file containing the contents of the main page of the technology board. JSON is a structured text file and R can read this. In other words, we have hit data gold. Let us go ahead and download the data from the front page.
+
+```{r}
+GET('http://a.4cdn.org/g/1.json')
+```
+
+The 200 status means we were successful. Superb.
+
+We are not going to print out the raw json here. Instead, we will ask R to parse the json file and put it into a tibble for us. After some exploration of the output, I noticed that the posts were located at $threads$posts.
+
+```{r}
+library(jsonlite)
+library(dplyr)
+x <- fromJSON('http://a.4cdn.org/g/1.json')$threads$posts
+our_data <- bind_rows(x)
+```
+
+The above two lines downlaod the JSON file using a helpful function called fromJSON. The result is a list of data frames, not a data frame. The function bind_rows takes a list of data frames and outputs a single tibble.
+
+The result looks ok.
+
+```{r}
+our_data
+```
+
+The comment section includes the HTML formatting. We can parse that to make the text more readable and replace the emoji characters with word equivilants. I have also gone through and replaced apostrophe characters.
+
+```{r}
+library(textclean)
+library(stringr)
+our_data$com <- replace_emoji(replace_html(our_data$com))
+our_data$com <- str_replace_all(string = our_data$com, pattern = '&#039;', replacement = '\'')
+our_data$com <- str_replace_all(string = our_data$com, pattern = '&#039;', replacement = '<e2><80><99>')
+```
+
+Now we have a data set which is looking a little better.
+
+```{r}
+our_data
+```
+
+## As a function
+
+We have code which will download 4chan posts. The code API, as we use it, has two parameters: board and page. We can create a function to which we supply the board and page, then the function returns the corresponding posts.
+
+```{r 4chan_function}
+get_4chan <- function(board, page) {
+  url <- paste('http://a.4cdn.org/', board, '/', as.character(page), '.json', sep = '')
+  x <- fromJSON(url)$threads$posts
+  our_data <- bind_rows(x)
+  our_data$com <- replace_emoji(replace_html(our_data$com))
+  our_data$com <- str_replace_all(string = our_data$com, pattern = '&#039;', replacement = '\'')
+  our_data$com <- str_replace_all(string = our_data$com, pattern = '&#039;', replacement = '<e2><80><99>')
+  our_data$board <- board
+  our_data
+}
+```
+
+Notice that I transform the page number into a character. I do this so that the URL is all text and R does not give us an error. I have also added a board column so that we know which board the data came from - this will be useful in the future.
+
+To use this function, we need to specify the board and the page.
+
+```{r}
+get_4chan(board = 'g', page = 3)
+```
+
+## Many comments
+
+Our function allows us to download multiple pages of comments from multiple boards. **Note** We would need to write more code to get the comments of every thread. The data we are downloading is simple the first entry in every thread.
+
+Let us get the first 20 pages of the technology(g), sports(sp) and fitness(fit) boards.
+
+```{r}
+boards <- c('g', 'sp', 'fit')
+pages <- 1:10
+
+our_data <- tibble()
+for (board in boards) {
+  for (page in pages) {
+    our_data <- bind_rows(
+      our_data,
+      get_4chan(board, page)
+    )
+  }
+}
+```
+
+We now have over 2000 comments from 4chan.
+
+## Summary and visualisation
+
+The data has lots of interesting columns.
+
+```{r}
+names(our_data)
+```
+
+Perhaps the easiest thing to do is to plot the number of replies.
+
+```{r}
+library(ggplot2)
+ggplot(data = our_data, aes(x = board, y = replies)) +
+  geom_boxplot()
+```
+
+Some small differences. What does the plot mean to you?
+
+Perhaps we should do a wordcount too.
+
+```{r}
+library(tidyverse)
+library(magrittr)
+small_data <- our_data[,c('com', 'board')] %>% drop_na()
+small_data %>%
+  mutate(
+    wordcount = str_count(com, pattern = '') + 1
+    ) %>%
+  group_by(board) %>%
+  summarise(
+    mean_wc = mean(wordcount)
+  )
+
+
+```
+
+```{r}
+our_data %>%
+  mutate(
+    wordcount = str_count(com, pattern = '') + 1
+    )
+```
