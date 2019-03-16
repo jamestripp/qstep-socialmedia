@@ -73,7 +73,7 @@ ma_function(22)
 ma_function(362)
 ```
 
-We are not going to define our own functions today. Instead, we are going to use functions which other people have already defined for us - they have done the hard work!
+We are mainly going to use functions which other people have already defined for us - they have done the hard work!
 
 It is often quite useful to look at the help documentation of a function. The documentation allows us to figure out what inputs the function expects and what the functions does. To access the help documentation, just add a ? in front of the function name. For example,
 
