@@ -13,14 +13,22 @@ The structure of the workshop is as follows
 |               | Introduction       | Overview of the day                                      |                           |
 |               | [R intro](https://github.com/jamestripp/qstep-socialmedia/tree/master/1_r_intro)            | An introduction to R                                     |  [ggplot2](https://ggplot2.tidyverse.org), [tidyverse](https://www.tidyverse.org)                         |
 | Collection    | [Scraping](https://github.com/jamestripp/qstep-socialmedia/tree/master/2_scraping)           | Downloading and filtering html pages                     | [rvest](https://github.com/tidyverse/rvest), [tidyverse](https://www.tidyverse.org), [magittr](https://magrittr.tidyverse.org), [ggplot2](https://ggplot2.tidyverse.org), [tibble](https://tibble.tidyverse.org)                     |
-|               | [API and data dumps](https://github.com/jamestripp/qstep-socialmedia/tree/master/3_apis_datadumps) | Accessing data directly using APIs                       | [httr](https://github.com/r-lib/httr), [jsonlite](https://www.opencpu.org/posts/jsonlite-a-smarter-json-encoder/), [dplyr](https://dplyr.tidyverse.org), textclean, [stringr](https://stringr.tidyverse.org), [ggplot2](https://ggplot2.tidyverse.org), [tidyverse](https://www.tidyverse.org), [magittr](https://magrittr.tidyverse.org), [tibble](https://tibble.tidyverse.org), [twitteR](https://cran.r-project.org/web/packages/twitteR/twitteR.pdf), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR)  |
+|               | [API and data dumps](https://github.com/jamestripp/qstep-socialmedia/tree/master/3_apis_datadumps) | Accessing data directly using APIs                       | [httr](https://github.com/r-lib/httr), [jsonlite](https://www.opencpu.org/posts/jsonlite-a-smarter-json-encoder/), [dplyr](https://dplyr.tidyverse.org), [textclean](https://github.com/trinker/textclean), [stringr](https://stringr.tidyverse.org), [ggplot2](https://ggplot2.tidyverse.org), [tidyverse](https://www.tidyverse.org), [magittr](https://magrittr.tidyverse.org), [tibble](https://tibble.tidyverse.org), [twitteR](https://cran.r-project.org/web/packages/twitteR/twitteR.pdf), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR)  |
 | Analysis      | [Summarising](https://github.com/jamestripp/qstep-socialmedia/tree/master/4_summarising)        | Tidyverse enabled summaries of our collected data        | [tidyverse](https://www.tidyverse.org), [tidytext](https://github.com/juliasilge/tidytext), [dplyr](https://dplyr.tidyverse.org), [tidyr](https://tidyr.tidyverse.org)                  |
-|               | [Text analysis](https://github.com/jamestripp/qstep-socialmedia/tree/master/5_text_analysis)      | Applying numerical analysis to our text                  | [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html), [tidyverse](https://www.tidyverse.org), [dplyr](https://dplyr.tidyverse.org), [stringr](https://stringr.tidyverse.org), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR), [tidyr](https://tidyr.tidyverse.org), igraph, ggraph, wordcloud, reshape2, rm, topicmodels |
+|               | [Text analysis](https://github.com/jamestripp/qstep-socialmedia/tree/master/5_text_analysis)      | Applying numerical analysis to our text                  | [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html), [tidyverse](https://www.tidyverse.org), [dplyr](https://dplyr.tidyverse.org), [stringr](https://stringr.tidyverse.org), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR), [tidyr](https://tidyr.tidyverse.org), [igraph](https://igraph.org/r/), [ggraph](https://github.com/thomasp85/ggraph), [wordcloud](https://cran.r-project.org/web/packages/wordcloud/index.html), [reshape2](https://github.com/hadley/reshape), [tm](http://tm.r-forge.r-project.org), [topicmodels](https://cran.r-project.org/web/packages/topicmodels/index.html) |
 |               | Natural Language   | Optional section using the cleanNLP package              | cleanNLP                  |
 
 ## Preparation
 
 The preparation for the workshop is detailed [here](preparation/). Please follow the instructions and install the required software before or during the workshop.
+
+In R, please run the following code to install all the above R package.
+
+```r
+our_packages <- c('tidyverse', 'ggplot2', 'rvest', 'jsonlite', 'httr', 'dplyr', 'textclean', 'stringr', 'magittr', 'tibble', 'twitteR', 'RedditExtractoR', 'tidytext', 'tidyr', 'igraph', 'ggraph', 'wordcloud', 'reshape2', 'tm', 'topicmodels')
+
+install.packages(our_packages)
+```
 
 ## Post-workshop
 
