@@ -135,4 +135,3 @@ And there is always the inbuilt R data sets.
 ```{r eval=FALSE}
 library(help="datasets")
 ```
-```
