@@ -2,8 +2,7 @@
 title: "1 R Intro"
 author: Dr James Tripp, CIM, University of Warwick
 output:
-  html_document:
-    df_print: paged
+  html_notebook: default
 ---
 
 # Basics

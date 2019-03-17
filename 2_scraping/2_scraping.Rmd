@@ -356,3 +356,24 @@ You have a function called get_tweets which will download the tweets from someon
 ```{r diy_twitter_vis}
 
 ```
+
+# Going further
+
+We have looked at how one can save and filter an HTML page in R. In the web page we filtered the HTML based on the classes of divs. The following might be of interest:
+
+* [W3Schools intro to HTML](https://www.w3schools.com/html/default.asp)
+* [W3Schools page about HTML div tags](https://www.w3schools.com/tags/tag_div.asp)
+* [W3Schools on HTML classes](https://www.w3schools.com/html/html_classes.asp)
+
+Rvest is a little limited for social media data, but is very useful for downloading strutured data like tables from web pages. For examples of this, see:
+
+* [Wikipedia table scraping](http://blog.corynissen.com/2015/01/using-rvest-to-scrape-html-table.html) - Old but clear tutorial on scraping a wikipedia table
+* [DataCamp community tutorial](https://www.datacamp.com/community/tutorials/r-web-scraping-rvest) - a more advanced tutorial on using rvest to scrape data from the Trustpilot page and carry out an interesting analysis.
+* [R view](https://resources.rstudio.com/r-views-3/player-data-for-the-2018-fifa-world-cup) - another wikipedia scraping example with rvest
+
+If you want to scrape page with infinite scrolling (such as twitter) from within the browser, then the dataminer extension for Google chrome is useful, along with the autoscroll extension. Below are several useful resources for this extension.
+
+* [DataMiner help page](https://data-miner.io/user-manuals/public-recipes)
+* [VisiHow tutorial](https://visihow.com/Use_Data_Miner_in_Google_Chrome)
+
+**Note** You will need to have a google account to use this service. Be aware this may result in DataMiner being aware your activities.
