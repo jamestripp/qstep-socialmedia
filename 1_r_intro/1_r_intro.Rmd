@@ -1,5 +1,6 @@
 ---
-title: "1 - R Intro"
+title: "1 R Intro"
+author: Dr James Tripp, CIM, University of Warwick
 output:
   html_document:
     df_print: paged
@@ -277,12 +278,6 @@ With a tibble, we can quite easily filter the data.
 ```{r tibble_filter}
 tb <- as_tibble(df)
 filter(tb, vs == 1)
-```
-
-We can also group a table by a variable.
-
-```{r tibble_groupby}
-group_by(tb, vs)
 ```
 
 ## Piping, for more fun!

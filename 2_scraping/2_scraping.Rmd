@@ -1,5 +1,6 @@
 ---
 title: "2 Scraping"
+author: Dr James Tripp, CIM, University of Warwick
 output:
   html_notebook: default
 ---
@@ -23,6 +24,7 @@ The [rvest](https://github.com/tidyverse/rvest) package allows us to download an
 The first step is to download and load the rvest package
 
 ```{r install_and_run_rvest}
+rm(list = ls())
 #install.packages('rvest')
 library(rvest)
 library(tidyverse)

@@ -11,11 +11,11 @@ The structure of the workshop is as follows
 | **Stage**     | **Title**          | **Detail**                                               | **R package(s)**          |
 |---------------|--------------------|----------------------------------------------------------|---------------------------|
 |               | Introduction       | Overview of the day                                      |                           |
-|               | [R intro](https://github.com/jamestripp/qstep-socialmedia/tree/master/1_r_intro)            | An introduction to R                                     |                           |
-| Collection    | [Scraping](https://github.com/jamestripp/qstep-socialmedia/tree/master/2_scraping)           | Downloading and filtering html pages                     | rvest                     |
-|               | API and data dumps | Accessing data directly using APIs                       | twitteR, RedditExtractoR  |
-| Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        | tidyverse                 |
-|               | Text analysis      | Applying numerical analysis to our text                  | tidytext                  |
+|               | [R intro](https://github.com/jamestripp/qstep-socialmedia/tree/master/1_r_intro)            | An introduction to R                                     |  ggplot2, tidyverse                         |
+| Collection    | [Scraping](https://github.com/jamestripp/qstep-socialmedia/tree/master/2_scraping)           | Downloading and filtering html pages                     | rvest, tidyverse, magittr, ggplot2, tibble                     |
+|               | API and data dumps | Accessing data directly using APIs                       | httr, jsonlite, dplyr, textclean, stringr, ggplot2, tidyverse, magittr, tibble, twitteR, RedditExtractoR  |
+| Analysis      | Summarising        | Tidyverse enabled summaries of our collected data        | tidyverse, tidytext, dplyr, tidyr                  |
+|               | Text analysis      | Applying numerical analysis to our text                  | tidytext, tidyverse, dplyr, stringr, RedditExtractoR, tidyr, igraph, ggraph, wordcloud, reshape2, rm, topicmodels |
 |               | Natural Language   | Optional section using the cleanNLP package              | cleanNLP                  |
 
 ## Preparation
@@ -30,3 +30,38 @@ For further information, please see the below links:
 - [Text Mining with R](https://www.tidytextmining.com). Another text which uses the tidyverse set of R packages.
 - [Tidy Data](https://www.jstatsoft.org/article/view/v059i10/v59i10.pdf). Journal article from 2014 detailing the idea behind 'tidy data'. Useful for understanding how the tidyverse is organised.
 - [cleanNLP](https://arxiv.org/pdf/1703.09570). A 2017 journal article introducing the cleanNLP package which allows one to carry out natural language processing using pretrained machine learning models with output consistent with the principles of the tidyverse. This article explains well the rationale of the package and approach.
+
+In the individual sections, additional links are provided. These are collected together below for your convenience.
+
+### R Intro
+
+* [R for data science](https://r4ds.had.co.nz) - An excellent book introducing the tidyverse approach to data science. 
+* [Tidyverse](https://www.tidyverse.org) - Web page detailing the tidyverse collection of package and how to use them.
+* [RStudio Cheat sheets](https://www.rstudio.com/resources/cheatsheets/) - A whole collection of cheatsheets. The ggplot and dplyr sheets are perhaps most useful given the above.
+* [RStudio essentials](https://resources.rstudio.com) - Videos available on the RStudio page.
+* [Rstudio Essentials of Data Science](https://resources.rstudio.com/the-essentials-of-data-science) - Nice collection of videos on various data science topics in R.
+* [Datacamp tidyverse for beginners](https://www.datacamp.com/community/blog/tidyverse-cheat-sheet-beginners) - A somewhat simpler cheat sheet which is great for those coming to the tidyverse for the first time.
+
+### Scraping
+
+
+
+### API and Data Dumps
+
+* [httr vignette about API access](https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html)
+* [RStudio Conference 2017 talk on accessing web APIs](https://www.rstudio.com/resources/videos/using-web-apis-from-r/)
+
+### Summarising
+
+* [The tidytext section](https://www.tidytextmining.com/tidytext.html) of the useful 'Text mining with R' book
+* [A gentle guide to Tidy Statistics in R](https://towardsdatascience.com/a-gentle-guide-to-statistics-in-r-ccb91cc1177e) by Thomas Mock - A nice overview of the tidyverse
+* [The tidy tools manifesto](https://tidyverse.tidyverse.org/articles/manifesto.html) - Hadley Wickham taking a manifesto approach
+* [Pipe section](https://r4ds.had.co.nz/pipes.html) of the R for data science book - in case the pipe requires additional clarification
+* [Data Carpentry lesson: R for social scientists](https://datacarpentry.org/r-socialsci/) - an R workshop specifically for social scientists which you may find quite approachable
+
+The best way to understand these tools is to use them, play with them, break them and produce something. A quick online search reveals [some r data sets for free](http://www.rdatamining.com/resources/data). Loading some of these datasets looks a little tricky. 
+
+You can always try [FiveThirtyEight data sets](https://data.fivethirtyeight.com) - a news organisation which has released all their data in the [fivethirtyeight R package](https://cran.r-project.org/web/packages/fivethirtyeight/index.html)
+
+### Text Analysis
+

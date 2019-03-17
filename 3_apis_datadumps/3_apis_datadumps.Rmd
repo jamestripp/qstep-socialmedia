@@ -1,6 +1,7 @@
 ---
 title: "3 APIs and data dumps"
 output: html_notebook
+author: Dr James Tripp, CIM, University of Warwick
 ---
 
 # Overview
@@ -12,6 +13,7 @@ Structured, table like data is available for most social media platforms. We can
 R has a library called [httr](https://github.com/r-lib/httr) which allows us to send a request to a web location. If we ask for a web page then we will get that page, which appears to us like garbage text.
 
 ```{r}
+rm(list = ls())
 library(httr)
 GET('www.google.com')
 ```
@@ -162,3 +164,169 @@ our_data %>%
     wordcount = str_count(com, pattern = '') + 1
     )
 ```
+
+We can follow the previous section using much the same code to generate a word could plot by board. The only differences are that we calculate the word count on the com column, group by board, remove any columns where there are missing values and only selected the columns we are using - in our cases these are in the com column.
+
+```{r}
+our_data[,c('com', 'board')] %>%
+  na.omit() %>%
+  mutate(
+    wordcount = str_count(com, pattern = '') + 1
+    ) %>%
+  group_by(board) %>%
+  summarise(
+    median_wc = median(wordcount),
+    max_wc = max(wordcount),
+    min_wc = min(wordcount)
+  ) %>%
+  ggplot(aes(x = board, y = median_wc)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = min_wc, ymax = max_wc)) +
+  coord_flip() +
+  theme_minimal()
+```
+
+# Reddit
+
+Reddit, another social media site, offers json data files too!
+
+The formal documentation for the API is available [here](https://www.reddit.com/dev/api/). But the API requires open authentication, which is a little trickier. Instead, we'll opt for the simpler approach of adding .json to page as [detailed here](https://www.reddit.com/r/redditdev/comments/6anc5z/what_on_earth_is_the_url_to_get_a_simple_json/).
+
+Our code to access the front page of the [united kingdom reddit](https://www.reddit.com/r/unitedkingdom) is:
+
+```{r}
+base_url <- 'https://www.reddit.com/r/unitedkingdom'
+url <- paste(base_url, '.json', sep = '')
+reddit_data <- fromJSON(url)$data$children$data
+names(reddit_data)
+```
+
+Admittedly, finding that the data is in $data$children$data took a little work. Let us plot the upvoted of the different entries.
+
+```{r}
+library(tibble)
+my_tibble <- as_tibble(reddit_data)
+my_tibble[,c( 'title', 'ups')] %>%
+  na.omit() %>%
+  mutate(short_title = substr(title, 1, 50)) %>% # make a shorter title so our plot isn't too big
+  ggplot(aes(x = short_title, y = ups)) +
+  geom_point() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  coord_flip()
+```
+
+## RedditExtractoR
+
+We could write a for loop which collect the data from the above reddit pages. However, someone has done a far better job than we would do. That person, Ivan Rivera, wrote the [RedditExtractoR package](https://github.com/ivan-rivera/RedditExtractoR).
+
+Let's load in the package and see how to use it.
+
+```{r}
+library(RedditExtractoR)
+?RedditExtractoR
+```
+
+Great, so run a search and then it returns a bunch of comment data.
+
+```{r}
+query <- 'brexit'
+our_data <- get_reddit(query, subreddit = 'unitedkingdom')
+```
+
+That will take a while. However, it works rather well.
+
+# Other APIs
+
+There are methods, in R, for accessing other social media APIs. Below is code for accessing the Twitter and YouTube APIs. To download data from these platforms you will need API keys:
+
+* [Instructions for generating a YouTube API key](https://developers.google.com/youtube/v3/getting-started)
+* [Twitter documentation about API tokens](https://developer.twitter.com/en/docs/basics/authentication/guides/access-tokens.html)
+* [Guide for creating a Twitter API key](https://www.slickremix.com/docs/how-to-get-api-keys-and-tokens-for-twitter/)
+
+## YouTube
+
+The Google APIs are quite like the other JSON dumps above. We send a request to Google via a url containing the API key and our parameters. The below code will get a video description.
+
+```{r eval=FALSE}
+download_youtube_video_description <- function(video_id, api_key, part = 'snippet'){
+  api_url <- 'https://www.googleapis.com/youtube/v3/videos'
+  api_options <- list(
+    part = part,
+    key = api_key,
+    id = video_id
+  )
+  response <- plyr::ldply(
+    httr::content(httr::GET(api_url, query = api_options))$items,
+    data.frame,
+    stringsAsFactors = FALSE
+  )
+  data.frame(
+    id = response$id,
+    published = response$snippet.publishedAt,
+    title = response$snippet.title,
+    description = response$snippet.description,
+    stringsAsFactors = FALSE
+  )
+}
+```
+
+Where you should provide the video id (the part of the URL which is after v=) and your API key.
+
+**note** you will need to generate API keys for your use.
+
+You can put this in a loop for multiple video descriptions
+
+```{r eval=FALSE}
+download_youtube_video_descriptions <- function(video_ids, api_key, part = 'snippet'){
+  
+  for (i in 1:length(video_ids)) {
+    id <- video_ids[i]
+    result <- rbind(
+      result,
+      download_youtube_video_description(video_id = id, api_key = api_key)
+    )
+  }
+  
+result
+}
+```
+
+The above functions are slightly modified from the current version of the LE-CAT app I am developing with Dr Noortje Marres at CIM.
+
+## Twitter
+
+Twitter API access is best done using the excellent TwitteR package. The code below is taken from the superb [medium post by Michael Galarnyk](https://towardsdatascience.com/access-data-from-twitter-api-using-r-and-or-python-b8ac342d3efe) - well worth a read.
+
+**note** you will need to generate API keys for your use.
+
+```{r eval=FALSE}
+#taken from 
+#install.packages("twitteR")
+library(twitteR) 
+# Change consumer_key, consume_secret, access_token, and 
+# access_secret based on your own keys
+consumer_key <- ""
+consumer_secret <-""
+access_token <- ""
+access_secret <- "" 
+setup_twitter_oauth(consumer_key, consumer_secret, access_token, access_secret)
+tw = searchTwitter('@GalarnykMichael', n = 25)
+d = twListToDF(tw)
+```
+
+# Summary
+
+We have looked at how to collect data from 4chan and Reddit via JSON files. We have also skimmed over samples of code for accessing the YouTube and Twitter APIs. 
+
+R allows us to load in these data and then create some basic summaries and plots. In the next segment, we will take a moment to look a little closer at the tidyverse verb based manipulation of tables to generate summaries.
+
+## Your turn
+
+Collect some reddit data on a topic you are interested in. Choose a query and subreddits which are relevent to your interest. After collecting the data, save your data as an RData file using the save() function.
+
+# Going further
+
+If you want to go further with these techniques then the following might be useful:
+
+* [httr vignette about API access](https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html)
+* [RStudio Conference 2017 talk on accessing web APIs](https://www.rstudio.com/resources/videos/using-web-apis-from-r/)
