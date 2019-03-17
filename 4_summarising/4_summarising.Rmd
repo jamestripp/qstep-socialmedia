@@ -27,7 +27,7 @@ The package RedditExtractoR allows us to collect a lot of data from Reddit easil
 
 Given our current time period, brexit seems a good choice of topic. We are going to look within the general news, united kingdom and ukpolitics subreddits. The function get_reddit will download a few pages of search results. **Note:** The function returns only a maximum of 500 comments per item; this is a limitation of the package.
 
-```{r}
+```{r results='hide', message=FALSE}
 library(RedditExtractoR)
 query <- 'brexit'
 subreddits <- c('news', 'unitedkingdom', 'ukpolitics')

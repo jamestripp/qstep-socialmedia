@@ -228,7 +228,7 @@ library(RedditExtractoR)
 
 Great, so run a search and then it returns a bunch of comment data.
 
-```{r}
+```{r results='hide', message=FALSE}
 query <- 'brexit'
 our_data <- get_reddit(query, subreddit = 'unitedkingdom')
 ```
