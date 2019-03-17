@@ -330,3 +330,4 @@ If you want to go further with these techniques then the following might be usef
 
 * [httr vignette about API access](https://cran.r-project.org/web/packages/httr/vignettes/api-packages.html)
 * [RStudio Conference 2017 talk on accessing web APIs](https://www.rstudio.com/resources/videos/using-web-apis-from-r/)
+* The [rTweet](https://rtweet.info) package looks like a better way to access Twitter via R. However, I have not tried it before this workshop.
