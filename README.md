@@ -25,7 +25,26 @@ The preparation for the workshop is detailed [here](preparation/). Please follow
 In R, please run the following code to install all the above R package.
 
 ```r
-our_packages <- c('tidyverse', 'ggplot2', 'rvest', 'jsonlite', 'httr', 'dplyr', 'textclean', 'stringr', 'magittr', 'tibble', 'twitteR', 'RedditExtractoR', 'tidytext', 'tidyr', 'igraph', 'ggraph', 'wordcloud', 'reshape2', 'tm', 'topicmodels')
+our_packages <- c('tidyverse', 
+                  'ggplot2', 
+                  'rvest', 
+                  'jsonlite', 
+                  'httr', 
+                  'dplyr', 
+                  'textclean', 
+                  'stringr', 
+                  'magittr', 
+                  'tibble', 
+                  'twitteR', 
+                  'RedditExtractoR', 
+                  'tidytext', 
+                  'tidyr', 
+                  'igraph', 
+                  'ggraph', 
+                  'wordcloud', 
+                  'reshape2', 
+                  'tm', 
+                  'topicmodels')
 
 install.packages(our_packages)
 ```
