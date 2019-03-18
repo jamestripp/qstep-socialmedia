@@ -49,6 +49,8 @@ our_packages <- c('tidyverse',
 install.packages(our_packages)
 ```
 
+If you recieve a message about requiring code to be compiled then type in no and press enter.
+
 ## Post-workshop
 
 For further information, please see the below links:

@@ -6,7 +6,7 @@ This folder contains a R notebook file. In this segment, we follow the [Text Min
 
 The .rmd file in this directory can be openend up in RStudio. The R notebook format allows one to run code alongside text in a rather nice format. More details about the R notebook format are available from the rmarkdown book section dedicated to R notebooks [here](https://bookdown.org/yihui/rmarkdown/notebook.html).
 
-An HTML version of the output (which you can view within the browser) will be available before the start of the workshop.
+An HTML version of the output (which you can view within the browser) can be viewed [here](https://agnor.lnx.warwick.ac.uk/social_media/5_text_analysis.html).
 
 # Going further
 

@@ -133,7 +133,7 @@ tibble(
 
 Oh no! It looks like our timestamp and text vectors have different lengths. We could investigate why, but instead we will drop the timestamps.
 
-```{r twitter_combine_mk2}
+```{r echo=FALSE}
 library(tibble)
 
 title <- twitter %>%
@@ -152,6 +152,7 @@ tb_twitter <- tibble(
   title,
   text
 )
+
 tb_twitter
 ```
 
@@ -204,13 +205,13 @@ get_tweets <- function(account) {
 
 Let us give it a go.
 
-```{r function_collection}
+```{r eval=FALSE}
 get_tweets('jamestripp_')
 ```
 
 Looking good. We should try another account.
 
-```{r cimethods}
+```{r eval=FALSE}
 get_tweets('cimethods')
 ```
 
@@ -269,7 +270,7 @@ our_data %>%
 
 What about word counts? It might be that tweets from my feed are generally much more verbose.
 
-```{r word_count}
+```{r eval=FALSE}
 our_data %>%
   mutate(
     wordcount = str_count(text, pattern = '') + 1

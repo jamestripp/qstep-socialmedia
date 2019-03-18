@@ -70,7 +70,7 @@ our_data$com <- str_replace_all(string = our_data$com, pattern = '&#039;', repla
 
 Now we have a data set which is looking a little better.
 
-```{r}
+```{r echo=FALSE}
 our_data
 ```
 
