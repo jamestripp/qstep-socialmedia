@@ -1,0 +1,174 @@
+---
+title: "6 Natual Language Language"
+output: html_notebook
+author: Dr James Tripp, CIM, University of Warwick
+---
+
+
+```{r}
+rm(list = ls())
+library(tibble)
+library(tidyverse)
+library(RedditExtractoR)
+```
+# Overview
+
+Language has structure (e.g., nouns, verbs, etc.) and natual language processing allows us to incorperate this structure into our analysis. We are going to use an R package called cleanNLP (clean Natural Language Processing). The package takes our text and runs a machine learning model from the spacy module written in python. The result is a tibble.
+
+Please make sure you have installed Anaconda Python and the machine learning model as outlined in the [preperation section](https://github.com/jamestripp/qstep-socialmedia/tree/master/preparation) of the workshop.
+
+# Loading the package and checking the machine learning model
+
+We need to make sure everything is configured correctly.
+
+1. Tell R where to find the Anaconda version of Python.
+
+```{r}
+require(reticulate)
+reticulate::use_python('/anaconda3/bin/python')
+```
+
+**Note:** On windows the location of acadonda python is different. The path may be something like
+
+'C:\\Users\\James\\Anaconda3\\python.exe'
+
+2. Load the cleanNLP package.
+
+```{r}
+require(cleanNLP)
+```
+
+3. Initialize the spacy interface
+
+```{r}
+cnlp_init_spacy()
+```
+
+If there is no output from the above then it has worked. Congratulations, you can now use cleanNLP to carry out natural language processing in R.
+
+# Collect our reddit data
+
+```{r}
+query <- 'brexit'
+subreddits <- c('news', 'unitedkingdom', 'ukpolitics')
+df <- tibble()
+for (subreddit in subreddits) {
+  df <- bind_rows(
+    df,
+    get_reddit(search_terms = query, subreddit = subreddit)
+  )
+}
+names(df)
+```
+
+# Analysis
+
+We are going to follow the analysis given in the examples from the [R Journal paper on cleanNLP](https://arxiv.org/pdf/1703.09570.pdf). Note that the functions in the current version of the package have cnlp_ in front of them.
+
+```{r}
+obj <- cnlp_annotate(df, doc_ids = df$subreddit, text_var = 'comment')
+```
+
+The analysis will take a long time. Please use the saved file provided for the workshop. We are treating each subreddit as a seperate document and collapsing the comments into a single string. The sample data contains 29 thousand comments accross 3 subreddits, taking about 30 minutes to process on a 5K iMac.
+
+The cleanNLP package will generate tibble tables for us. We can look at the document.
+
+```{r}
+cnlp_get_document(obj) %>%
+  group_by(id) %>%
+  summarise(
+    count = n()
+  )
+```
+
+And dive into the word by word analysis. 
+
+```{r}
+cnlp_get_token(obj)
+```
+
+the column names are document id, sentance id, token id (first word of a sentance is 1, then 2, etc.), raw word, lemmmatized (commen term for multiple inflections), universal part of speech code, language specific part of speech code.
+
+What can we do with this table? Well, we could apply our tidyverse knowhow. For instance, what are our Nouns and how often are they used?
+
+```{r}
+cnlp_get_token(obj) %>%
+  filter(upos == 'NOUN') %>%
+  select(word, upos) %>%
+  group_by(upos, word) %>%
+  summarise(
+    count = n()
+  ) %>%
+  arrange(desc(count))
+```
+
+A rather nice analysis offered by cleanNLP is the entity detection.
+
+```{r}
+cnlp_get_entity(obj)
+```
+
+We can look at the people most mentioned by subreddit.
+
+```{r}
+cnlp_get_entity(obj) %>%
+  filter(entity_type == 'PERSON') %>%
+  group_by(id, entity) %>%
+  summarise(
+    count = n()
+  ) %>%
+  top_n(n = 15, count)
+```
+
+Which we can plot out using ggplot.
+
+```{r}
+cnlp_get_entity(obj) %>%
+  filter(entity_type == 'PERSON') %>%
+  group_by(id, entity) %>%
+  summarise(
+    count = n()
+  ) %>%
+  top_n(n = 15, count) %>%
+  ggplot(aes(x = entity, y = count)) +
+  geom_point() +
+  facet_grid(.~id) +
+  theme_bw() +
+  coord_flip()
+```
+
+Interesting. Brexiteers are mentioned in ukpolitics and united kingdom, but not so much in news. What can you see in the data?
+
+How about the organisations which are mentioned?
+
+```{r}
+cnlp_get_entity(obj) %>%
+  filter(entity_type == 'ORG') %>%
+  group_by(id, entity) %>%
+  summarise(
+    count = n()
+  ) %>%
+  top_n(n = 15, count) %>%
+  ggplot(aes(x = entity, y = count)) +
+  geom_point() +
+  facet_grid(.~id) +
+  theme_bw() +
+  coord_flip()
+```
+
+There is quite a bit more we can do. However, we have covered a considerable amount today. If there is time then please do explore the data. Or apply this approach to your own custom query.
+
+Below are some links you might find useful.
+
+In the workshop, we have moved from basic R to the filtering of web pages, then onto the downloading, analysing and visualisation of trends in the a social media data set. That is a lot. These techniques make more sense the more you use them and require careful practice. I have also provided lots of links to help you with your study. The notes for these workshops will continue to be available on github and you are welcome to contact me, James Tripp (james.tripp@warwick.ac.uk) if you have further questions.
+
+# Going further
+
+Natual language processing is an interesting area. There are lots of packages (e.g., see the [CRAN natural langauge processing view](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html)) and cleanNLP seems to be the best for easily integrating with the tidyverse. You may find the below links to be useful.
+
+* [Stanford CoreNLP](http://www.aclweb.org/anthology/P14-5010) - An excellent and classic library for natual language processing.
+* [Spacy homepage](https://spacy.io) - The python package we used above. If you applying the above in your own projects then please work through this page to usderstand some of the nuances of the program.
+* [CleanNLP article](https://arxiv.org/pdf/1703.09570.pdf) - The paper contains some analysis which we did not do above. Furthermore, the references in the paper are useful for better understanding the approach.
+* [Detecting politeness](https://journal.r-project.org/archive/2018/RJ-2018-067/RJ-2018-067.pdf) - Natual language processing has the potential of identifying more nuanced components of anlaysis, such as politeness.
+
+In general, you should find some data and play around. Try to get a sense of what your data is and understand what it is telling you.

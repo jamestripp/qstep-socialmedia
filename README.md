@@ -16,7 +16,7 @@ The structure of the workshop is as follows
 |               | [API and data dumps](https://github.com/jamestripp/qstep-socialmedia/tree/master/3_apis_datadumps) | Accessing data directly using APIs                       | [httr](https://github.com/r-lib/httr), [jsonlite](https://www.opencpu.org/posts/jsonlite-a-smarter-json-encoder/), [dplyr](https://dplyr.tidyverse.org), [textclean](https://github.com/trinker/textclean), [stringr](https://stringr.tidyverse.org), [ggplot2](https://ggplot2.tidyverse.org), [tidyverse](https://www.tidyverse.org), [magittr](https://magrittr.tidyverse.org), [tibble](https://tibble.tidyverse.org), [twitteR](https://cran.r-project.org/web/packages/twitteR/twitteR.pdf), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR)  |
 | Analysis      | [Summarising](https://github.com/jamestripp/qstep-socialmedia/tree/master/4_summarising)        | Tidyverse enabled summaries of our collected data        | [tidyverse](https://www.tidyverse.org), [tidytext](https://github.com/juliasilge/tidytext), [dplyr](https://dplyr.tidyverse.org), [tidyr](https://tidyr.tidyverse.org)                  |
 |               | [Text analysis](https://github.com/jamestripp/qstep-socialmedia/tree/master/5_text_analysis)      | Applying numerical analysis to our text                  | [tidytext](https://cran.r-project.org/web/packages/tidytext/vignettes/tidytext.html), [tidyverse](https://www.tidyverse.org), [dplyr](https://dplyr.tidyverse.org), [stringr](https://stringr.tidyverse.org), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR), [tidyr](https://tidyr.tidyverse.org), [igraph](https://igraph.org/r/), [ggraph](https://github.com/thomasp85/ggraph), [wordcloud](https://cran.r-project.org/web/packages/wordcloud/index.html), [reshape2](https://github.com/hadley/reshape), [tm](http://tm.r-forge.r-project.org), [topicmodels](https://cran.r-project.org/web/packages/topicmodels/index.html) |
-|               | Natural Language   | Optional section using the cleanNLP package              | cleanNLP                  |
+|               | Natural Language   | Optional section using the cleanNLP package              | [cleanNLP](https://statsmaths.github.io/cleanNLP/), [tibble](https://tibble.tidyverse.org), [tidyverse](https://www.tidyverse.org), [RedditExtractoR](https://CRAN.R-project.org/package=RedditExtractoR), [reticulate](https://rstudio.github.io/reticulate/)                  |
 
 ## Preparation
 
@@ -44,7 +44,9 @@ our_packages <- c('tidyverse',
                   'wordcloud', 
                   'reshape2', 
                   'tm', 
-                  'topicmodels')
+                  'topicmodels',
+                  'cleanNLP',
+                  'reticulate')
 
 install.packages(our_packages)
 ```
@@ -132,3 +134,14 @@ I have listed a few more resources below. These can be tricky and you are best g
 * [Computer science paper reviewing sentiment analysis so far](https://arxiv.org/pdf/1612.01556.pdf)
 * [Medium post on sentiment analysis and machine learning](https://medium.com/datadriveninvestor/sentiment-analysis-machine-learning-approach-83e4ba38b57) - Hard to read but a nice quick review
 * [Machine learning analysis with R](https://www.kaggle.com/taindow/deep-learning-with-r-sentiment-analysis).
+
+### Natural Language Processing
+
+Natual language processing is an interesting area. There are lots of packages (e.g., see the [CRAN natural langauge processing view](https://cran.r-project.org/web/views/NaturalLanguageProcessing.html)) and cleanNLP seems to be the best for easily integrating with the tidyverse. You may find the below links to be useful.
+
+* [Stanford CoreNLP](http://www.aclweb.org/anthology/P14-5010) - An excellent and classic library for natual language processing.
+* [Spacy homepage](https://spacy.io) - The python package we used above. If you applying the above in your own projects then please work through this page to usderstand some of the nuances of the program.
+* [CleanNLP article](https://arxiv.org/pdf/1703.09570.pdf) - The paper contains some analysis which we did not do above. Furthermore, the references in the paper are useful for better understanding the approach.
+* [Detecting politeness](https://journal.r-project.org/archive/2018/RJ-2018-067/RJ-2018-067.pdf) - Natual language processing has the potential of identifying more nuanced components of anlaysis, such as politeness.
+
+In general, you should find some data and play around. Try to get a sense of what your data is and understand what it is telling you.
