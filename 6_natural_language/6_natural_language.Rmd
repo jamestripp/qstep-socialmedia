@@ -1,5 +1,5 @@
 ---
-title: "6 Natual Language Language"
+title: "6 Natual Language Processing"
 output: html_notebook
 author: Dr James Tripp, CIM, University of Warwick
 ---
