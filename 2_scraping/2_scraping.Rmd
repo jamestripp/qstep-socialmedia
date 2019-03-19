@@ -337,7 +337,7 @@ save(our_data, file = 'our_data.RData')
 or as a csv file
 
 ```{r eval=FALSE}
-write_csv(our_data, file = 'our_data.csv')
+write_csv(our_data, path = 'our_data.csv')
 ```
 
 ### Your turn
