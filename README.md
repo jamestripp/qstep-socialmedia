@@ -1,5 +1,7 @@
 # QSTEP Masterclass: Social Media
 
+[![DOI](https://zenodo.org/badge/174321567.svg)](https://zenodo.org/badge/latestdoi/174321567)
+
 [James](https://www.warwick.ac.uk/jamestripp) will be delivering this all day workshop on Tuesday the 19th of March. This repository contains preparatory details and the files used in when delivering the workshop.
 
 The workshop covers some methods for downloading, analysing and visualising social media data using the R programming language. We use the 'tidyverse' in R and (optionally) the spacy python module for natural language processing.
