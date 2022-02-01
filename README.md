@@ -1,6 +1,7 @@
 # QSTEP Masterclass: Social Media
 
 [![DOI](https://zenodo.org/badge/174321567.svg)](https://zenodo.org/badge/latestdoi/174321567)
+RStudio: [![Binder](http://mybinder.org/badge_logo.svg)](http://mybinder.org/v2/gh/jamestripp/qstep-socialmedia/master?urlpath=rstudio)
 
 [James](https://www.warwick.ac.uk/jamestripp) will be delivering this all day workshop on Tuesday the 19th of March. This repository contains preparatory details and the files used in when delivering the workshop.
 
